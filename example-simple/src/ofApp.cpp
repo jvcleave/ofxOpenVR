@@ -163,7 +163,11 @@ void  ofApp::render(vr::Hmd_Eye nEye)
 //--------------------------------------------------------------
 void ofApp::controllerEvent(ofxOpenVRControllerEventArgs& args)
 {
+<<<<<<< HEAD
 	ofLog() << "ofApp::controllerEvent: role: " << (int)args.controllerRole << " - event type: " << (int)args.eventType << " - button type: " << (int)args.buttonType << " - x: " << (int) args.analogInput_xAxis << " - y: " << (int)args.analogInput_yAxis << endl;
+=======
+	cout << "ofApp::controllerEvent > role: " << (int)args.controllerRole << " - event type: " << (int)args.eventType << " - button type: " << (int)args.buttonType << " - x: " << args.analogInput_xAxis << " - y: " << args.analogInput_yAxis << endl;
+>>>>>>> 0f8bd51042028a884d5c5da58375cf2112c0b17d
 }
 
 //--------------------------------------------------------------

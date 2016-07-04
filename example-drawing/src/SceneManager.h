@@ -27,7 +27,7 @@ public:
 		// We need to pass the method we want ofxOpenVR to call when rending the scene
 		openVR.setup(std::bind(&SceneManager::render, this, std::placeholders::_1));
 		openVR.setDrawControllers(true);
-
+		openVR.setRenderModelForTrackedDevices(true);
 		ofAddListener(openVR.ofxOpenVRControllerEvent, this, &SceneManager::controllerEvent);
 
 		// Vertex shader source
@@ -96,6 +96,12 @@ public:
 				bShowHelp = !bShowHelp;
 				break;
 			}
+			case 'm': {
+
+				openVR.setRenderModelForTrackedDevices(!openVR.getRenderModelForTrackedDevices());
+				break;
+			}
+				
 			default:
 			{
 				if (currentScene)

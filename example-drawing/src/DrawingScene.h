@@ -177,6 +177,8 @@ public:
 		ss << "Press the Touchpad to star a new line." << endl;
 		ss << "Press the Grip button to clear all the lines drawn with that specific controller." << endl;
 		ss << "Drawing resolution " << polylineResolution << " (press: +/-)." << endl;
+		ss << "Drawing default 3D models " << openVR->getRenderModelForTrackedDevices() << " (press: m)." << endl;
+
 		return ss.str();
 	}
 	void onKeyPressed(int key)

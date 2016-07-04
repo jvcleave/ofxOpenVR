@@ -24,8 +24,10 @@ void ofApp::draw(){
 	
 }
 
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+
 
 	sceneManager.onKeyPressed(key);
 	
