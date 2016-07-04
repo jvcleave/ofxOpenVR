@@ -19,5 +19,5 @@ public:
 	virtual void onRender(vr::Hmd_Eye& nEye)=0;
 	virtual void onControllerEvent(ofxOpenVRControllerEventArgs)=0;
 	virtual void onKeyPressed(int key) = 0;
-
+	virtual string getHelpInfo() = 0;
 };

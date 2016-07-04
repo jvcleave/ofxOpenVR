@@ -19,6 +19,7 @@ public:
 	{
 		bShowHelp = false;
 		_strHelp.str("");
+		currentScene = NULL;
 	}
 
 	void setup()
@@ -80,27 +81,31 @@ public:
 
 		openVR.drawDebugInfo(10.0f, 500.0f);
 
-#if 1
-		// Help
-		if (bShowHelp) {
-			_strHelp.str("");
-			_strHelp.clear();
-			_strHelp << "HELP (press h to toggle): " << endl;
-			_strHelp << "Press the Trigger of a controller to draw a line with that specific controller." << endl;
-			_strHelp << "Press the Touchpad to star a new line." << endl;
-			_strHelp << "Press the Grip button to clear all the lines drawn with that specific controller." << endl;
-			//_strHelp << "Drawing resolution " << polylineResolution << " (press: +/-)." << endl;
-			ofDrawBitmapStringHighlight(_strHelp.str(), ofPoint(10.0f, 20.0f), ofColor(ofColor::black, 100.0f));
+		if (bShowHelp && currentScene) {
+		
+			ofDrawBitmapStringHighlight(currentScene->getHelpInfo(), ofPoint(10.0f, 20.0f), ofColor(ofColor::black, 100.0f));
 		}
-#endif
 	}
 
 	void onKeyPressed(int key)
 	{
-		if (currentScene)
+		switch (key)
 		{
-			currentScene->onKeyPressed(key);
+			case 'h':
+			{
+				bShowHelp = !bShowHelp;
+				break;
+			}
+			default:
+			{
+				if (currentScene)
+				{
+					currentScene->onKeyPressed(key);
+				}
+				break;
+			}
 		}
+		
 	}
 	void render(vr::Hmd_Eye nEye)
 	{

@@ -169,6 +169,16 @@ public:
 		}
 	};
 
+	string getHelpInfo()
+	{
+		stringstream ss;
+		ss << "HELP (press h to toggle): " << endl;
+		ss << "Press the Trigger of a controller to draw a line with that specific controller." << endl;
+		ss << "Press the Touchpad to star a new line." << endl;
+		ss << "Press the Grip button to clear all the lines drawn with that specific controller." << endl;
+		ss << "Drawing resolution " << polylineResolution << " (press: +/-)." << endl;
+		return ss.str();
+	}
 	void onKeyPressed(int key)
 	{
 		switch (key) {
