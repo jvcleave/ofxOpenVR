@@ -2,6 +2,8 @@
 
 #define STRINGIFY(A) #A
 #include "DrawingScene.h"
+#include "VideoScene.h"
+#include "BoxScene.h"
 
 class SceneManager
 {
@@ -10,18 +12,30 @@ public:
 	vector<BaseScene*> scenes;
 	BaseScene* currentScene;
 	ofxOpenVR openVR;
-	ofShader shader;
 
 	bool bShowHelp;
 	std::ostringstream _strHelp;
-
+	int currentSceneIndex;
 	SceneManager()
 	{
 		bShowHelp = false;
 		_strHelp.str("");
 		currentScene = NULL;
+		currentSceneIndex = -1;
 	}
 
+	void loadNextScene()
+	{
+		if (currentSceneIndex + 1 < scenes.size())
+		{
+			currentSceneIndex++;
+		}
+		else
+		{
+			currentSceneIndex = 0;
+		}
+		currentScene = scenes[currentSceneIndex];
+	}
 	void setup()
 	{
 		// We need to pass the method we want ofxOpenVR to call when rending the scene
@@ -30,38 +44,24 @@ public:
 		openVR.setRenderModelForTrackedDevices(true);
 		ofAddListener(openVR.ofxOpenVRControllerEvent, this, &SceneManager::controllerEvent);
 
-		// Vertex shader source
-		string vertex;
+		
 
-		vertex = "#version 150\n";
-		vertex += STRINGIFY(
-			uniform mat4 matrix;
-
-		in vec4 position;
-
-		void main() {
-			gl_Position = matrix * position;
-		}
-		);
-
-		// Fragment shader source
-		string fragment = "#version 150\n";
-		fragment += STRINGIFY(
-			out vec4 outputColor;
-		void main() {
-			outputColor = vec4(1.0, 1.0, 1.0, 1.0);
-		}
-		);
-
-		// Shader
-		shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex);
-		shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment);
-		shader.bindDefaults();
-		shader.linkProgram();
 
 		DrawingScene* drawingScene = new DrawingScene();
-		drawingScene->setup(&openVR, &shader);
-		currentScene = drawingScene;
+		drawingScene->setup(&openVR);
+		scenes.push_back(drawingScene);
+
+		VideoScene* videoScene = new VideoScene();
+		videoScene->setup(&openVR);
+		scenes.push_back(videoScene);
+
+
+		BoxScene* boxScene = new BoxScene();
+		boxScene->setup(&openVR);
+		scenes.push_back(boxScene);
+
+		currentSceneIndex = 0;
+		currentScene = scenes[currentSceneIndex];
 	}
 
 	void update()
@@ -124,7 +124,113 @@ public:
 	{
 		if (currentScene)
 		{
-			currentScene->onControllerEvent(args);
+			switch (args.controllerRole)
+			{
+			case ControllerRole::Left:
+			{
+				switch (args.buttonType)
+				{
+				case ButtonType::ButtonTrigger:
+				{
+					if (args.eventType == EventType::ButtonPress)
+					{
+						currentScene->onLeftButtonPress();
+					}
+					else
+					{
+						if (args.eventType == EventType::ButtonUnpress)
+						{
+							currentScene->onLeftButtonRelease();
+						}
+					}
+					break;
+				}
+				case ButtonType::ButtonTouchpad:
+				{
+					if (args.eventType == EventType::ButtonPress)
+					{
+						currentScene->onLeftTouchPadPress();
+					}
+					else
+					{
+						if (args.eventType == EventType::ButtonUnpress)
+						{
+							currentScene->onLeftTouchPadRelease();
+						}
+					}
+					break;
+				}
+				case ButtonType::ButtonGrip:
+				{
+					if (args.eventType == EventType::ButtonPress)
+					{
+						currentScene->onLeftGripPress();
+					}
+					else
+					{
+						if (args.eventType == EventType::ButtonUnpress)
+						{
+							currentScene->onLeftGripRelease();
+						}
+					}
+					break;
+				}
+				}
+				break;
+			}
+			case ControllerRole::Right:
+			{
+				switch (args.buttonType)
+				{
+				case ButtonType::ButtonTrigger:
+				{
+					if (args.eventType == EventType::ButtonPress)
+					{
+						currentScene->onRightButtonPress();
+					}
+					else
+					{
+						if (args.eventType == EventType::ButtonUnpress)
+						{
+							currentScene->onRightButtonRelease();
+						}
+					}
+					break;
+				}
+				case ButtonType::ButtonTouchpad:
+				{
+					if (args.eventType == EventType::ButtonPress)
+					{
+						currentScene->onRightTouchPadPress();
+					}
+					else
+					{
+						if (args.eventType == EventType::ButtonUnpress)
+						{
+							currentScene->onRightTouchPadRelease();
+						}
+					}
+					break;
+				}
+				case ButtonType::ButtonGrip:
+				{
+					if (args.eventType == EventType::ButtonPress)
+					{
+						currentScene->onRightGripPress();
+					}
+					else
+					{
+						if (args.eventType == EventType::ButtonUnpress)
+						{
+							currentScene->onRightGripRelease();
+						}
+					}
+					break;
+				}
+				}
+				break;
+			}
+			}
 		}
 	}
 	void exit()

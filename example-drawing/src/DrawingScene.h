@@ -6,7 +6,7 @@ class DrawingScene : public BaseScene
 
 public:
 
-	ofShader* shader;
+	ofShader shader;
 
 	float polylineResolution;
 
@@ -19,10 +19,10 @@ public:
 	ofVec3f lastLeftControllerPosition;
 	ofVec3f lastRightControllerPosition;
 
-	void setup(ofxOpenVR* openVR_, ofShader* shader_)
+	void setup(ofxOpenVR* openVR_)
 	{
 		openVR = openVR_;
-		shader = shader_;
+		shader.load("default");
 		bIsLeftTriggerPressed = false;
 		bIsRightTriggerPressed = false;
 
@@ -57,117 +57,103 @@ public:
 	}
 	void onRender(vr::Hmd_Eye& nEye)
 	{
-		if (shader) {
-			ofMatrix4x4 currentViewProjectionMatrix = openVR->getCurrentViewProjectionMatrix(nEye);
+		ofMatrix4x4 currentViewProjectionMatrix = openVR->getCurrentViewProjectionMatrix(nEye);
 
-			shader->begin();
-			shader->setUniformMatrix4f("matrix", currentViewProjectionMatrix, 1);
-			ofSetColor(ofColor::white);
-			for (auto pl : leftControllerPolylines) {
-				pl.draw();
-			}
-
-			for (auto pl : rightControllerPolylines) {
-				pl.draw();
-			}
-			shader->end();
+		shader.begin();
+		shader.setUniformMatrix4f("matrix", currentViewProjectionMatrix, 1);
+		ofSetColor(ofColor::white);
+		for (auto pl : leftControllerPolylines) {
+			pl.draw();
 		}
-		// Loading matrices
-		else {
-			ofPushView();
-			ofSetMatrixMode(OF_MATRIX_PROJECTION);
-			ofLoadMatrix(openVR->getCurrentProjectionMatrix(nEye));
-			ofSetMatrixMode(OF_MATRIX_MODELVIEW);
-			ofMatrix4x4 currentViewMatrixInvertY = openVR->getCurrentViewMatrix(nEye);
-			currentViewMatrixInvertY.scale(1.0f, -1.0f, 1.0f);
-			ofLoadMatrix(currentViewMatrixInvertY);
 
-			ofSetColor(ofColor::white);
-
-			for (auto pl : leftControllerPolylines) {
-				pl.draw();
-			}
-
-			for (auto pl : rightControllerPolylines) {
-				pl.draw();
-			}
-			ofPopView();
+		for (auto pl : rightControllerPolylines) {
+			pl.draw();
 		}
+		shader.end();
 	};
 
-	void onControllerEvent(ofxOpenVRControllerEventArgs args)
+	void onLeftButtonPress()
 	{
-		//cout << "ofApp::controllerEvent > role: " << ofToString(args.controllerRole) << " - event type: " << ofToString(args.eventType) << " - button type: " << ofToString(args.buttonType) << " - x: " << args.analogInput_xAxis << " - y: " << args.analogInput_yAxis << endl;
-		// Left
-		if (args.controllerRole == ControllerRole::Left) {
-			// Trigger
-			if (args.buttonType == ButtonType::ButtonTrigger) {
-				if (args.eventType == EventType::ButtonPress) {
-					bIsLeftTriggerPressed = true;
+		bIsLeftTriggerPressed = true;
 
-					if (leftControllerPolylines.size() == 0) {
-						leftControllerPolylines.push_back(ofPolyline());
-						lastLeftControllerPosition.set(ofVec3f());
-					}
-				}
-				else if (args.eventType == EventType::ButtonUnpress) {
-					bIsLeftTriggerPressed = false;
-				}
-			}
-			// ButtonTouchpad
-			else if (args.buttonType == ButtonType::ButtonTouchpad) {
-				if (args.eventType == EventType::ButtonPress) {
-					leftControllerPolylines.push_back(ofPolyline());
-					lastLeftControllerPosition.set(ofVec3f());
-				}
-			}
-			// Grip
-			else if (args.buttonType == ButtonType::ButtonGrip) {
-				if (args.eventType == EventType::ButtonPress) {
-					for (auto pl : leftControllerPolylines) {
-						pl.clear();
-					}
+		if (leftControllerPolylines.size() == 0)
+		{
+			leftControllerPolylines.push_back(ofPolyline());
+			lastLeftControllerPosition.set(ofVec3f());
+		}
+	}
 
-					leftControllerPolylines.clear();
-				}
-			}
+	void onLeftButtonRelease()
+	{
+		bIsLeftTriggerPressed = false;
+	}
+
+	void onLeftTouchPadPress()
+	{
+		leftControllerPolylines.push_back(ofPolyline());
+		lastLeftControllerPosition.set(ofVec3f());
+	}
+
+	void onLeftTouchPadRelease()
+	{
+		
+	}
+
+	void onLeftGripPress()
+	{
+		for (auto pl : leftControllerPolylines)
+		{
+			pl.clear();
 		}
 
-		// Right
-		else if (args.controllerRole == ControllerRole::Right) {
-			// Trigger
-			if (args.buttonType == ButtonType::ButtonTrigger) {
-				if (args.eventType == EventType::ButtonPress) {
-					bIsRightTriggerPressed = true;
+		leftControllerPolylines.clear();
+	}
 
-					if (rightControllerPolylines.size() == 0) {
-						rightControllerPolylines.push_back(ofPolyline());
-						lastRightControllerPosition.set(ofVec3f());
-					}
-				}
-				else if (args.eventType == EventType::ButtonUnpress) {
-					bIsRightTriggerPressed = false;
-				}
-			}
-			// ButtonTouchpad
-			else if (args.buttonType == ButtonType::ButtonTouchpad) {
-				if (args.eventType == EventType::ButtonPress) {
-					rightControllerPolylines.push_back(ofPolyline());
-					lastRightControllerPosition.set(ofVec3f());
-				}
-			}
-			// Grip
-			else if (args.buttonType == ButtonType::ButtonGrip) {
-				if (args.eventType == EventType::ButtonPress) {
-					for (auto pl : rightControllerPolylines) {
-						pl.clear();
-					}
+	void onLeftGripRelease()
+	{
 
-					rightControllerPolylines.clear();
-				}
-			}
+	}
+
+	void onRightButtonPress()
+	{
+		bIsRightTriggerPressed = true;
+
+		if (rightControllerPolylines.size() == 0) {
+			rightControllerPolylines.push_back(ofPolyline());
+			lastRightControllerPosition.set(ofVec3f());
 		}
-	};
+	}
+
+	void onRightButtonRelease()
+	{
+		bIsRightTriggerPressed = false;
+	}
+	void onRightTouchPadPress()
+	{
+		rightControllerPolylines.push_back(ofPolyline());
+		lastRightControllerPosition.set(ofVec3f());
+	}
+	void onRightTouchPadRelease()
+	{
+
+	}
+
+	void onRightGripPress()
+	{
+		for (auto pl : rightControllerPolylines) {
+			pl.clear();
+		}
+
+		rightControllerPolylines.clear();
+		cout << "onRightGripPress" << endl;
+
+	}
+
+	void onRightGripRelease()
+	{
+		cout << "onRightGripRelease" << endl;
+	}
+	
 
 	string getHelpInfo()
 	{

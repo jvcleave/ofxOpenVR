@@ -28,8 +28,15 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-
-	sceneManager.onKeyPressed(key);
+	if (key == ' ')
+	{
+		sceneManager.loadNextScene();
+	}
+	else
+	{
+		sceneManager.onKeyPressed(key);
+	}
+	
 	
 }
 

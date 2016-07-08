@@ -3,6 +3,8 @@
 
 //========================================================================
 int main( ){
+	ofSetLogLevel(OF_LOG_VERBOSE);
+
 	ofGLWindowSettings settings;
 	settings.setGLVersion(4, 1);
 	settings.width = 1280;
