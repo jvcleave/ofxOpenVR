@@ -16,23 +16,75 @@ public:
 	ofVec3f lastRightControllerPosition;
 	ofMatrix4x4 translateMatrix;
 
+	float movementSpeed = .1;
+	float cloudSize = ofGetWidth() / 2;
+	float maxBoxSize = 100;
+	float spacing = 1;
 
 	bool isTextureReady;
+	vector<ofBoxPrimitive> boxes;
+	int numBoxesToDraw;
 	void setup(ofxOpenVR* openVR_)
 	{
 		openVR = openVR_;
-		shader.load("default");
+
+		// Vertex shader source
+		string vertex;
+
+		vertex = "#version 150\n";
+		vertex += STRINGIFY(
+			uniform mat4 matrix;
+
+		in vec4 position;
+
+		void main() {
+			gl_Position = matrix * position;
+		}
+		);
+
+		// Fragment shader source
+		string fragment = "#version 150\n";
+		fragment += STRINGIFY(
+			out vec4 outputColor;
+		void main() {
+			outputColor = vec4(1.0, 1.0, 1.0, 1.0);
+		}
+		);
+
+		// Shader
+		shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex);
+		shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment);
+		shader.bindDefaults();
+		shader.linkProgram();
+
 		bIsLeftTriggerPressed = false;
 		bIsRightTriggerPressed = false;
 
 		lastLeftControllerPosition.set(ofVec3f());
 		lastRightControllerPosition.set(ofVec3f());
 
-
+		for (size_t i = 0; i < 10; i++)
+		{
+			ofBoxPrimitive box;
+			box.set(i);
+			box.enableColors();
+			boxes.push_back(box);
+		}
 	}
 
 	void update()
 	{
+		if (ofGetFrameNum() % 100 == 0)
+		{
+			if (numBoxesToDraw + 1 < boxes.size())
+			{
+				numBoxesToDraw++;
+			}
+			else
+			{
+				numBoxesToDraw = 1;
+			}
+		}
 		if (bIsLeftTriggerPressed) {
 			if (openVR->isControllerConnected(vr::TrackedControllerRole_LeftHand))
 			{
@@ -52,13 +104,71 @@ public:
 	{
 		ofMatrix4x4 currentViewProjectionMatrix = openVR->getCurrentViewProjectionMatrix(nEye);
 
-		ofMatrix4x4 hdmPoseMat = translateMatrix * currentViewProjectionMatrix;
+		
 
+
+		
+
+		translateMatrix.translate(ofVec3f(0.0, .0, 0.0));
+		ofMatrix4x4 hdmPoseMat = translateMatrix * currentViewProjectionMatrix;
 		shader.begin();
 		shader.setUniformMatrix4f("matrix", hdmPoseMat, 1);
+		
+		for (int i = 0; i < numBoxesToDraw; i++)
+		{
+			
+			
+			int degrees = ofGetFrameNum() % 360;
 
+			ofVec3f point(ofRandom(0, 10), 0, 0);
+			ofVec3f point2(ofRandom(0, 100), ofRandom(0, 100), 0);
+			boxes[i].setGlobalPosition(point2);
+			boxes[i].drawWireframe();
 
+		}
 		shader.end();
+		
+#if 0
+		ofPushView();
+		ofSetMatrixMode(OF_MATRIX_PROJECTION);
+		ofLoadMatrix(currentViewProjectionMatrix);
+		ofSetMatrixMode(OF_MATRIX_MODELVIEW);
+		ofMatrix4x4 currentViewMatrixInvertY = openVR->getCurrentViewMatrix(nEye);
+		currentViewMatrixInvertY.scale(1.0f, -1.0f, 1.0f);
+		ofLoadMatrix(currentViewMatrixInvertY);
+		
+		for (int i = 0; i < boxCount; i++) {
+			ofPushMatrix();
+
+			float t = (ofGetElapsedTimef() + i * spacing) * movementSpeed;
+			ofVec3f pos(
+				ofSignedNoise(t, 0, 0),
+				ofSignedNoise(0, t, 0),
+				ofSignedNoise(0, 0, t));
+
+			float boxSize = maxBoxSize * ofNoise(pos.x, pos.y, pos.z);
+
+			pos *= cloudSize;
+			ofTranslate(pos);
+			ofRotateX(pos.x);
+			ofRotateY(pos.y);
+			ofRotateZ(pos.z);
+
+			//ofLogo.bind();
+			ofFill();
+			ofSetColor(255);
+			ofDrawBox(boxSize);
+			//ofLogo.unbind();
+
+			ofNoFill();
+			ofSetColor(ofColor::fromHsb(sinf(t) * 128 + 128, 255, 255));
+			ofDrawBox(boxSize * 1.1f);
+
+			ofPopMatrix();
+		}
+		
+		ofPopView();
+#endif
 	};
 
 	void onLeftButtonPress()
@@ -121,11 +231,8 @@ public:
 	string getHelpInfo()
 	{
 		stringstream ss;
-		ss << "HELP (press h to toggle): " << endl;
-		ss << "Press the Trigger of a controller to draw a line with that specific controller." << endl;
-		ss << "Press the Touchpad to star a new line." << endl;
-		ss << "Press the Grip button to clear all the lines drawn with that specific controller." << endl;
-		ss << "Drawing default 3D models " << openVR->getRenderModelForTrackedDevices() << " (press: m)." << endl;
+		ss << "Box Scene: " << endl;
+
 
 		return ss.str();
 	}

@@ -46,19 +46,21 @@ public:
 
 		
 
-
-		DrawingScene* drawingScene = new DrawingScene();
-		drawingScene->setup(&openVR);
-		scenes.push_back(drawingScene);
+		BoxScene* boxScene = new BoxScene();
+		boxScene->setup(&openVR);
+		scenes.push_back(boxScene);
 
 		VideoScene* videoScene = new VideoScene();
 		videoScene->setup(&openVR);
 		scenes.push_back(videoScene);
 
+		DrawingScene* drawingScene = new DrawingScene();
+		drawingScene->setup(&openVR);
+		scenes.push_back(drawingScene);
 
-		BoxScene* boxScene = new BoxScene();
-		boxScene->setup(&openVR);
-		scenes.push_back(boxScene);
+		
+
+
 
 		currentSceneIndex = 0;
 		currentScene = scenes[currentSceneIndex];

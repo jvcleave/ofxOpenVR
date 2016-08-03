@@ -62,10 +62,10 @@ void ofApp::setup(){
 					);
 
 	// Shader
-	//_shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex);
-	//_shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment);
-	//_shader.bindDefaults();
-	//_shader.linkProgram();
+	_shader.setupShaderFromSource(GL_VERTEX_SHADER, vertex);
+	_shader.setupShaderFromSource(GL_FRAGMENT_SHADER, fragment);
+	_shader.bindDefaults();
+	_shader.linkProgram();
 	_shader.load("videoShader");
 	// Controllers
 	_controllerBox.set(.1);
